@@ -179,7 +179,7 @@ class Video2Command():
             # End of epoch, save weights
             print('Total loss for epoch {}: {:.6f}'.format(epoch+1, total_loss / (i + 1)))
             if (epoch + 1) % self.config.SAVE_EVERY == 0:
-                self.save_weights()
+                self.save_weights(epoch + 1)
         return
 
     def evaluate(self,
@@ -222,7 +222,8 @@ class Video2Command():
             S[:,timestep+1] = preds
         return S
 
-    def save_weights(self):
+    def save_weights(self, 
+                     epoch):
         """Save the current weights and record current training info 
         into tensorboard.
         """
@@ -231,7 +232,7 @@ class Video2Command():
                     'VideoEncoder_state_dict': self.video_encoder.state_dict(),
                     'CommandDecoder_state_dict': self.command_decoder.state_dict(),
                     'optimizer_state_dict': self.optimizer.state_dict(),
-                    }, os.path.join(self.config.CHECKPOINT_PATH, 'saved'))
+                    }, os.path.join(self.config.CHECKPOINT_PATH, 'saved', 'v2c_epoch_{}.pth'.format(epoch)))
         print('Model saved.')
 
     def load_weights(self,
