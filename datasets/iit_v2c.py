@@ -220,6 +220,7 @@ def parse_dataset(config,
     # Process text tokens
     targets = utils.texts_to_sequences(captions, vocab)
     targets = utils.pad_sequences(targets, config.MAXLEN, padding='post')
+    targets = targets.astype(np.int64)
 
     return clips, targets, vocab, config
 

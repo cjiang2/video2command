@@ -106,14 +106,16 @@ class Video2Command():
         self.config = config
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     
-    def build(self,
-              optimizer):
+    def build(self):
         # Initialize Encode & Decode models here
         self.video_encoder = VideoEncoder(in_size=self.config.NUM_FEATURES, 
                                           units=self.config.UNITS)
         self.command_decoder = CommandDecoder(units=self.config.UNITS,
                                               vocab_size=self.config.VOCAB_SIZE,
                                               embed_dim=self.config.EMBED_SIZE)
+        self.video_encoder.to(self.device)
+        self.command_decoder.to(self.device)
+    
         # Loss function
         self.loss_objective = CommandLoss()
 
@@ -137,7 +139,7 @@ class Video2Command():
             """
             loss = 0.0
             # Zero the parameter gradients
-            optimizer.zero_grad()
+            self.optimizer.zero_grad()
 
             # Forward pass
             # Video feature extraction 1st
@@ -151,7 +153,7 @@ class Video2Command():
                 Xs = S[:,timestep]
                 probs, states = self.command_decoder(Xs, states)
                 # Calculate loss per word
-                loss += self.loss_objective(S[:,timestep+1], probs)
+                loss += self.loss_objective(probs, S[:,timestep+1])
             loss = loss / S_mask.sum()     # Loss per word
 
             # Gradient backward
@@ -181,7 +183,7 @@ class Video2Command():
         return
 
     def evaluate(self,
-                 eval_loader,
+                 test_loader,
                  vocab):
         """Run the evaluation pipeline over the test dataset.
         """
