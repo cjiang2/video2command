@@ -171,6 +171,7 @@ class Video2Command():
             for i, (Xv, S) in enumerate(train_loader):
                 # Mini-batch
                 Xv, S = Xv.to(self.device), S.to(self.device)
+                # Train step
                 loss = train_step(Xv, S)
                 total_loss += loss
                 # Display
@@ -189,16 +190,18 @@ class Video2Command():
                  vocab):
         """Run the evaluation pipeline over the test dataset.
         """
-        assert self.config.MODE == 'eval'
+        assert self.config.MODE == 'test'
         y_pred, y_true = [], []
         # Evaluation over the entire test dataset
         for i, (Xv, S_true) in enumerate(test_loader):
+            # Mini-batch
+            Xv, S_true = Xv.to(self.device), S_true.to(self.device)
             S_pred = self.predict(Xv, vocab)
             y_pred.append(S_pred)
             y_true.append(S_true)
-        y_pred = torch.concat(y_pred, axis=0)
-        y_true = torch.concat(y_true, axis=0)
-        return y_pred.numpy(), y_true.numpy()
+        y_pred = torch.cat(y_pred, dim=0)
+        y_true = torch.cat(y_true, dim=0)
+        return y_pred.cpu().numpy(), y_true.cpu().numpy()
 
     def predict(self, 
                 Xv,
@@ -208,20 +211,22 @@ class Video2Command():
         self.video_encoder.eval()
         self.command_decoder.eval()
 
-        # Initialize S with '<sos>'
-        S = torch.zeros((Xv.shape[0], self.config.MAXLEN), dtype=torch.long)
-        S[:,0] = vocab('<sos>')
+        with torch.no_grad():
+            # Initialize S with '<sos>'
+            S = torch.zeros((Xv.shape[0], self.config.MAXLEN), dtype=torch.long)
+            S[:,0] = vocab('<sos>')
+            S = S.to(self.device)
 
-        # Start v2c prediction pipeline
-        Xv, states = self.video_encoder(Xv)
+            # Start v2c prediction pipeline
+            Xv, states = self.video_encoder(Xv)
 
-        #states = self.command_decoder.reset_states(Xv.shape[0])
-        #_, states = self.command_decoder(None, states, Xv=Xv)   # Encode video features 1st
-        for timestep in range(self.config.MAXLEN - 1):
-            Xs = S[:,timestep]
-            probs, states = self.command_decoder(Xs, states)
-            preds = torch.argmax(probs, dim=1)    # Collect prediction
-            S[:,timestep+1] = preds
+            #states = self.command_decoder.reset_states(Xv.shape[0])
+            #_, states = self.command_decoder(None, states, Xv=Xv)   # Encode video features 1st
+            for timestep in range(self.config.MAXLEN - 1):
+                Xs = S[:,timestep]
+                probs, states = self.command_decoder(Xs, states)
+                preds = torch.argmax(probs, dim=1)    # Collect prediction
+                S[:,timestep+1] = preds
         return S
 
     def save_weights(self, 
