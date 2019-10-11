@@ -13,7 +13,7 @@ class Config(object):
     """
     # Name the configurations.
     NAME = None  # Override in sub-classes
-    MODE = 'train'  # Mode (train/test)
+    MODE = 'train'  # Mode (train/eval)
 
     # --------------------
     # Training Parameters
@@ -37,8 +37,9 @@ class Config(object):
 
     # --------------------
     # Model hyperparameters
-    # Backbone used for feature extraction
+    # Backbone & num_features used for feature extraction
     BACKBONE = 'resnet50'
+    NUM_FEATURES = 2048
 
     # Unit size for LSTM, Dense
     UNITS = 512
