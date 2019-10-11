@@ -106,13 +106,15 @@ class Video2Command():
         self.config = config
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     
-    def build(self):
+    def build(self,
+              bias_init_vector=None):
         # Initialize Encode & Decode models here
         self.video_encoder = VideoEncoder(in_size=self.config.NUM_FEATURES, 
                                           units=self.config.UNITS)
         self.command_decoder = CommandDecoder(units=self.config.UNITS,
                                               vocab_size=self.config.VOCAB_SIZE,
-                                              embed_dim=self.config.EMBED_SIZE)
+                                              embed_dim=self.config.EMBED_SIZE,
+                                              bias_init_vector=bias_init_vector)
         self.video_encoder.to(self.device)
         self.command_decoder.to(self.device)
     
