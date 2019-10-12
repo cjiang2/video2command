@@ -18,6 +18,7 @@ class VideoEncoder(nn.Module):
         super(VideoEncoder, self).__init__()
         self.linear = nn.Linear(in_size, units)
         self.lstm = nn.LSTM(units, units, batch_first=True)
+        self.reset_parameters()
 
     def forward(self, 
                 Xv):
@@ -33,6 +34,16 @@ class VideoEncoder(nn.Module):
         hi, ci = hi[0,:,:], ci[0,:,:]
         #print('lstm:', Xv.shape, 'hi:', hi.shape, 'ci:', ci.shape)
         return Xv, (hi, ci)
+
+    def reset_parameters(self):
+        for n, p in self.named_parameters():
+            if 'weight' in n:
+                if 'hh' in n:
+                    nn.init.orthogonal_(p.data)
+                else:
+                    nn.init.xavier_uniform_(p.data)
+            else:
+                nn.init.zeros_(p.data)
 
 
 class CommandDecoder(nn.Module):
@@ -52,8 +63,7 @@ class CommandDecoder(nn.Module):
         self.lstm_cell = nn.LSTMCell(embed_dim, units)
         self.logits = nn.Linear(units, vocab_size, bias=True)
         self.softmax = nn.LogSoftmax(dim=1)
-        if bias_init_vector is not None:
-            self.logits.bias.data = torch.from_numpy(bias_init_vector).float()
+        self.reset_parameters(bias_init_vector)
 
     def forward(self, 
                 Xs, 
@@ -75,12 +85,27 @@ class CommandDecoder(nn.Module):
         #print('softmax:', x.shape)
         return x, (hi, ci)
 
-    def init_hidden(self, batch_size):
+    def init_hidden(self, 
+                    batch_size):
         """Initialize a zero state for LSTM.
         """
         h0 = torch.zeros(batch_size, self.units)
         c0 = torch.zeros(batch_size, self.units)
         return (h0, c0)
+
+    def reset_parameters(self,
+                         bias_init_vector):
+        for n, p in self.named_parameters():
+            if 'weight' in n:
+                if 'hh' in n:
+                    nn.init.orthogonal_(p.data)
+                else:
+                    nn.init.xavier_uniform_(p.data)
+            else:
+                nn.init.zeros_(p.data)
+        nn.init.uniform_(self.embed.weight.data, -0.05, 0.05)
+        if bias_init_vector is not None:
+            self.logits.bias.data = torch.from_numpy(bias_init_vector).float()
 
 
 class CommandLoss(nn.Module):
