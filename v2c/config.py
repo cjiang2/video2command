@@ -69,6 +69,10 @@ class Config(object):
     # Word frequency
     FREQUENCY = None
 
+    # Whether to use bias vector, which is related to the log 
+    # probability of the distribution of the labels (words) and how often they occur.
+    USE_BIAS_VECTOR = True
+
     # Special tokens to be added into vocabulary
     SPECIAL_TOKENS = ['<sos>', '<eos>']
 

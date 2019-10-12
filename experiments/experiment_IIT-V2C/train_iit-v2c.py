@@ -36,11 +36,11 @@ train_loader = data.DataLoader(train_dataset,
                                batch_size=config.BATCH_SIZE, 
                                shuffle=True, 
                                num_workers=config.WORKERS)
-bias_init_vector = vocab.get_bias_init_vector()
+bias_vector = vocab.get_bias_vector() if config.USE_BIAS_VECTOR else None
 
 # Setup and build video2command training inference
 v2c_model = Video2Command(config)
-v2c_model.build(bias_init_vector)
+v2c_model.build(bias_vector)
 
 # Save vocabulary at last
 with open(os.path.join(config.CHECKPOINT_PATH, 'vocab.pkl'), 'wb') as f:

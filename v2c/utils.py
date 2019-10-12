@@ -16,7 +16,9 @@ import numpy as np
 class Vocabulary(object):
     """Simple vocabulary wrapper.
     """
-    def __init__(self):
+    def __init__(self, 
+                 unk_word=None):
+        self.unk_word = unk_word
         self.word2idx = {}
         self.idx2word = {}
         self.idx = 0
@@ -24,8 +26,10 @@ class Vocabulary(object):
 
     def __call__(self, word):
         if not word in self.word2idx:
-            return None   # Return None if unknown word
-            #return self.word2idx['<unk>']
+            if self.unk_word is None:
+                return None   # Return None if no unknown word's defined
+            else:
+                return self.word2idx[self.unk_word]
         return self.word2idx[word]
 
     def __len__(self):
@@ -48,16 +52,16 @@ class Vocabulary(object):
         """
         return sorted(self.word2idx.keys())
 
-    def get_bias_init_vector(self):
+    def get_bias_vector(self):
         """Calculate bias vector from word frequency distribution.
         NOTE: From NeuralTalk.
         """
         words = sorted(self.word2idx.keys())
-        bias_init_vector = np.array([1.0*self.word_counts[word] for word in words])
-        bias_init_vector /= np.sum(bias_init_vector) # Normalize to frequencies
-        bias_init_vector = np.log(bias_init_vector)
-        bias_init_vector -= np.max(bias_init_vector) # Shift to nice numeric range
-        return bias_init_vector
+        bias_vector = np.array([1.0*self.word_counts[word] for word in words])
+        bias_vector /= np.sum(bias_vector) # Normalize to frequencies
+        bias_vector = np.log(bias_vector)
+        bias_vector -= np.max(bias_vector) # Shift to nice numeric range
+        return bias_vector
 
 def build_vocab(texts, 
                 frequency=None, 

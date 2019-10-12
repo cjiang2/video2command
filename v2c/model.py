@@ -54,7 +54,7 @@ class CommandDecoder(nn.Module):
                  units,
                  vocab_size,
                  embed_dim,
-                 bias_init_vector=None):
+                 bias_vector=None):
         super(CommandDecoder, self).__init__()
         self.units = units
         self.embed_dim = embed_dim
@@ -63,7 +63,7 @@ class CommandDecoder(nn.Module):
         self.lstm_cell = nn.LSTMCell(embed_dim, units)
         self.logits = nn.Linear(units, vocab_size, bias=True)
         self.softmax = nn.LogSoftmax(dim=1)
-        self.reset_parameters(bias_init_vector)
+        self.reset_parameters(bias_vector)
 
     def forward(self, 
                 Xs, 
@@ -94,7 +94,7 @@ class CommandDecoder(nn.Module):
         return (h0, c0)
 
     def reset_parameters(self,
-                         bias_init_vector):
+                         bias_vector):
         for n, p in self.named_parameters():
             if 'weight' in n:
                 if 'hh' in n:
@@ -104,8 +104,8 @@ class CommandDecoder(nn.Module):
             else:
                 nn.init.zeros_(p.data)
         nn.init.uniform_(self.embed.weight.data, -0.05, 0.05)
-        if bias_init_vector is not None:
-            self.logits.bias.data = torch.from_numpy(bias_init_vector).float()
+        if bias_vector is not None:
+            self.logits.bias.data = torch.from_numpy(bias_vector).float()
 
 
 class CommandLoss(nn.Module):
@@ -132,14 +132,14 @@ class Video2Command():
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     
     def build(self,
-              bias_init_vector=None):
+              bias_vector=None):
         # Initialize Encode & Decode models here
         self.video_encoder = VideoEncoder(in_size=self.config.NUM_FEATURES, 
                                           units=self.config.UNITS)
         self.command_decoder = CommandDecoder(units=self.config.UNITS,
                                               vocab_size=self.config.VOCAB_SIZE,
                                               embed_dim=self.config.EMBED_SIZE,
-                                              bias_init_vector=bias_init_vector)
+                                              bias_vector=bias_vector)
         self.video_encoder.to(self.device)
         self.command_decoder.to(self.device)
     
