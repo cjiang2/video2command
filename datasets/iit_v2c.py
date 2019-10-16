@@ -196,13 +196,13 @@ def imgspath_targets_v1(annotations,
 # ----------------------------------------
 
 def parse_dataset(config, 
+                  annotation_file,
                   vocab=None,
                   numpy_features=True):
     """Parse IIT-V2C dataset and update configuration.
     """
 
     # Load annotation 1st
-    annotation_file = config.MODE + '.txt'
     annotations = load_annotations(config.DATASET_PATH, annotation_file)
 
     # Pre-extracted features saved as numpy

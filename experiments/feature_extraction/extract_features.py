@@ -68,12 +68,13 @@ def main_iit_v2c():
     model_names = ['resnet50']
     pooling = 'avg'
 
-    annotation_files = ['train.txt', 'test.txt']
+    annotation_files = ['test.txt', 'train.txt']
     for annotation_file in annotation_files:
         annotations = iit_v2c.load_annotations(config.DATASET_PATH, annotation_file)
 
         # Get torch.dataset object
         clips, targets, vocab, config = iit_v2c.parse_dataset(config, 
+                                                              annotation_file,
                                                               numpy_features=False)
         config.display()
         transform = transforms.Compose([transforms.Resize((224, 224)), 

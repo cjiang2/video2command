@@ -33,7 +33,8 @@ config.display()
 print()
 
 # Test parse_dataset
-clips, targets, vocab, config = iit_v2c.parse_dataset(config, numpy_features=False)
+annotation_file = config.MODE + '.txt'
+clips, targets, vocab, config = iit_v2c.parse_dataset(config, annotation_file, numpy_features=False)
 config.display()
 
 print('Vocabulary:')

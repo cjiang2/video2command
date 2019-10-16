@@ -84,7 +84,8 @@ config.display()
 print()
 
 # Test parse_dataset
-clips, targets, vocab, config = iit_v2c.parse_dataset(config)
+annotation_file = config.MODE + '.txt'
+clips, targets, vocab, config = iit_v2c.parse_dataset(config, annotation_file)
 config.display()
 
 print('Vocabulary:')
@@ -105,7 +106,8 @@ for i, (Xv, S, clip_name) in enumerate(train_loader):
 
 # Test parse_dataset on test_dataset
 config.MODE = 'test'
-clips_test, targets_test, vocab_test, config = iit_v2c.parse_dataset(config, vocab)
+annotation_file = config.MODE + '.txt'
+clips_test, targets_test, vocab_test, config = iit_v2c.parse_dataset(config, annotation_file, vocab=vocab)
 print(vocab == vocab_test)
 test_dataset = iit_v2c.FeatureDataset(clips_test, targets_test)
 test_loader = data.DataLoader(test_dataset, 

@@ -29,7 +29,8 @@ class TrainConfig(Config):
 # Setup configuration class
 config = TrainConfig()
 # Setup tf.dataset object
-clips, targets, vocab, config = iit_v2c.parse_dataset(config)
+annotation_file = config.MODE + '.txt'
+clips, targets, vocab, config = iit_v2c.parse_dataset(config, annotation_file)
 config.display()
 train_dataset = iit_v2c.FeatureDataset(clips, targets)
 train_loader = data.DataLoader(train_dataset, 
