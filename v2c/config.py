@@ -14,6 +14,8 @@ class Config(object):
     # Name the configurations.
     NAME = None  # Override in sub-classes
     MODE = 'train'  # Mode (train/eval)
+    # Root project directory
+    ROOT_DIR = None
 
     # --------------------
     # Training Parameters

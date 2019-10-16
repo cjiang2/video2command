@@ -3,8 +3,8 @@ import sys
 import glob
 import pickle
 
-import cv2
 import numpy as np
+from PIL import Image
 import torch
 from torch.utils import data
 
@@ -106,6 +106,7 @@ def avi2frames(dataset_path,
     """Convert avi videos from IIT-V2C dataset into images.
     WARNING: SLOW + TIME CONSUMING process! Final images take LARGE DISK SPACE!
     """
+    import cv2
     videos_path = glob.glob(os.path.join(dataset_path, in_folder, '*.avi'))
     for video_path in videos_path:
         video_fname = video_path.strip().split('/')[-1][:-4]
@@ -164,7 +165,7 @@ def imgspath_targets_v1(annotations,
         return imgs_path
 
     # Parse all (inputs, targets) pair
-    inputs, targets, clips_name = [], [], []
+    inputs, targets = [], []
     for video_fname in annotations.keys():
         annotations_by_clip = annotations[video_fname]
         for annotation in annotations_by_clip:
@@ -185,26 +186,38 @@ def imgspath_targets_v1(annotations,
             else:
                 target = ' '.join(annotation[2])
             
-            inputs.append(frames_path)
+            inputs.append({clip_name: frames_path})
             targets.append(target)
-            clips_name.append(clip_name)
 
-    return inputs, targets, clips_name
+    return inputs, targets
 
 # ----------------------------------------
 # Functions for torch.data.Dataset
 # ----------------------------------------
 
 def parse_dataset(config, 
-                  vocab=None):
+                  vocab=None,
+                  numpy_features=True):
     """Parse IIT-V2C dataset and update configuration.
     """
 
     # Load annotation 1st
     annotation_file = config.MODE + '.txt'
     annotations = load_annotations(config.DATASET_PATH, annotation_file)
-    clips, captions = clipsname_captions(annotations)
-    clips = [os.path.join(config.DATASET_PATH, config.BACKBONE, x + '.npy') for x in clips]
+
+    # Pre-extracted features saved as numpy
+    if numpy_features:
+        clips, captions = clipsname_captions(annotations)
+        clips = [os.path.join(config.DATASET_PATH, config.BACKBONE, x + '.npy') for x in clips]
+
+    # Use images
+    else:
+        clips, captions = imgspath_targets_v1(annotations, 
+                                              max_frames=config.WINDOW_SIZE,
+                                              dataset_path=config.DATASET_PATH,
+                                              folder='images',
+                                              synthetic_frame_path=os.path.join(config.ROOT_DIR, 'datasets', 'imagenet_frame.png')
+                                             )
 
     # Build vocabulary
     if vocab is None:
@@ -225,18 +238,43 @@ def parse_dataset(config,
     return clips, targets, vocab, config
 
 class FeatureDataset(data.Dataset):
-    """Create an instance of IIT-V2C dataset with pre-extracted features.
+    """Create an instance of IIT-V2C dataset with (features, targets) pre-extracted,
+    or with (imgs_path, targets)
     """
     def __init__(self, 
                  inputs,
-                 targets):
-        # Load annotations
-        self.inputs, self.targets = inputs, targets
+                 targets,
+                 numpy_features=True,
+                 transform=None):
+        self.inputs, self.targets = inputs, targets     # Load annotations
+        self.numpy_features = numpy_features
+        self.transform = transform
+
+    def parse_clip(self, 
+                   clip):
+        """Helper function to parse images {clip_name: imgs_path} into a clip. 
+        """
+        assert self.transform is not None   # Ensure to have at least ToTensor transform op.
+        Xv = []
+        clip_name = list(clip.keys())[0]
+        imgs_path = clip[clip_name]
+        for img_path in imgs_path:
+            image = Image.open(img_path).convert('RGB')
+            image = self.transform(image)
+            Xv.append(image)
+        Xv = torch.stack(Xv, dim=0)
+        return Xv, clip_name
 
     def __len__(self):
         return len(self.inputs)
 
     def __getitem__(self, idx):
-        Xv = np.load(self.inputs[idx])
+        # Pre-extracted numpy features
+        if self.numpy_features:
+            Xv = np.load(self.inputs[idx])
+            clip_name = self.inputs[idx].split('/')[-1]
+        # Image dataset
+        else:
+            Xv, clip_name = self.parse_clip(self.inputs[idx])
         S = self.targets[idx]
-        return Xv, S
+        return Xv, S, clip_name

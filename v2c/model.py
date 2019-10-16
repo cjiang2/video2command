@@ -4,13 +4,62 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import models
+
+# ----------------------------------------
+# Functions for Video Feature Extraction
+# ----------------------------------------
+
+class CNNWrapper(nn.Module):
+    """Wrapper module to extract features from image using
+    pre-trained CNN.
+    """
+    def __init__(self,
+                 backbone_name,
+                 pooling):
+        super(CNNWrapper, self).__init__()
+        self.backbone_name = backbone_name
+        self.backbone_model, self.input_size, self.num_features = self.init_backbone()
+        self.pool = self.init_pooling(pooling)
+
+    def forward(self,
+                x):
+        x = self.backbone_model(x)
+        if self.pool is not None:
+            x = self.pool(x)
+        return x
+
+    def init_backbone(self):
+        """Helper to initialize a pretrained pytorch model.
+        """
+        if self.backbone_name == 'resnet50':
+            # Initialize ResNet50 model
+            model = models.resnet50(pretrained=True)
+            input_size = 224
+            num_features = 2048
+            # Remove the classifier layer and pooling layer
+            modules = list(model.children())[:-2]
+            model = nn.Sequential(*modules)
+
+        return model, input_size, num_features
+
+    def init_pooling(self, 
+                     pooling):
+        """Helper to initialize a pooling layer.
+        """
+        pool = None
+        if pooling == 'avg':
+            pool = nn.AdaptiveAvgPool2d((1, 1))
+        return pool
+
 
 # ----------------------------------------
 # Functions for V2CNet
 # ----------------------------------------
 
 class VideoEncoder(nn.Module):
-    """Module to encode frame image from pre-trained CNN.
+    """Module to encode pre-extracted features coming from 
+    pre-trained CNN.
     """
     def __init__(self,
                  in_size,

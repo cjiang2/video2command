@@ -99,8 +99,8 @@ train_loader = data.DataLoader(train_dataset,
                                shuffle=True, 
                                num_workers=config.WORKERS)
 # Test torch dataloader object
-for i, (Xv, S) in enumerate(train_loader):
-    print(Xv.shape, S.shape)
+for i, (Xv, S, clip_name) in enumerate(train_loader):
+    print(Xv.shape, S.shape, clip_name)
     break
 
 # Test parse_dataset on test_dataset
@@ -114,6 +114,6 @@ test_loader = data.DataLoader(test_dataset,
                               num_workers=config.WORKERS)
 
 # Test tf.dataset object
-for i, (Xv, S) in enumerate(test_loader):
-    print(Xv.shape, S.shape)
+for i, (Xv, S, clip_name) in enumerate(test_loader):
+    print(Xv.shape, S.shape, clip_name)
     break
