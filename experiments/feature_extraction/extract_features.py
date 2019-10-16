@@ -37,9 +37,10 @@ def extract(dataset_path,
 
     # Prepare pre-trained model
     print('Loading pre-trained model...')
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     model = CNNWrapper(model_name, pooling)
     model.eval()
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
     print('Done loading.')
 
     # Feature extraction
@@ -75,7 +76,7 @@ def main_iit_v2c():
         clips, targets, vocab, config = iit_v2c.parse_dataset(config, 
                                                               numpy_features=False)
         config.display()
-        transform = transforms.Compose([transforms.Resize(224), 
+        transform = transforms.Compose([transforms.Resize((224, 224)), 
                                         transforms.ToTensor(),
                                         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
