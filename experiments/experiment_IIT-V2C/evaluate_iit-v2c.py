@@ -45,20 +45,23 @@ v2c_model = Video2Command(config)
 v2c_model.build()
 
 # Start evaluating
-v2c_model.load_weights(os.path.join(config.CHECKPOINT_PATH, 'saved', 'v2c_epoch_150.pth'))
-y_pred, y_true = v2c_model.evaluate(test_loader, vocab)
+checkpoint_files = sorted(glob.glob(os.path.join(config.CHECKPOINT_PATH, 'saved', '*.pth')))
+for checkpoint_file in checkpoint_files:
+    epoch = int(checkpoint_file.split('_')[-1][:-4])
+    v2c_model.load_weights(checkpoint_file)
+    y_pred, y_true = v2c_model.evaluate(test_loader, vocab)
 
-# Save to evaluation file
-f = open(os.path.join(config.CHECKPOINT_PATH, 'prediction.txt'), 'w')
+    # Save to evaluation file
+    f = open(os.path.join(config.CHECKPOINT_PATH, 'prediction_{}.txt'.format(epoch)), 'w')
 
-for i in range(len(y_pred)):
-    print(y_pred[i])
-    pred_command = utils.sequence_to_text(y_pred[i], vocab)
-    print(y_true[i])
-    true_command = utils.sequence_to_text(y_true[i], vocab)
-    f.write('------------------------------------------\n')
-    f.write(str(i) + '\n')
-    f.write(pred_command + '\n')
-    f.write(true_command + '\n')
+    for i in range(len(y_pred)):
+        print(y_pred[i])
+        pred_command = utils.sequence_to_text(y_pred[i], vocab)
+        print(y_true[i])
+        true_command = utils.sequence_to_text(y_true[i], vocab)
+        f.write('------------------------------------------\n')
+        f.write(str(i) + '\n')
+        f.write(pred_command + '\n')
+        f.write(true_command + '\n')
 
-print('Ready for cococaption.')
+    print('Ready for cococaption.')
