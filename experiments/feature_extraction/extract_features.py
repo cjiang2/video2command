@@ -37,7 +37,8 @@ def extract(dataset_path,
     # Prepare pre-trained model
     print('Loading pre-trained model...')
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model = CNNWrapper(model_name)
+    model = CNNWrapper(backbone=model_name,
+                       checkpoint_path=os.path.join(ROOT_DIR, 'checkpoints', 'backbone', 'resnet50.pth'))
     model.eval()
     model.to(device)
     print('Done loading.')

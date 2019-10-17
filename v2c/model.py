@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
+from v2c.backbone import resnet
 
 # ----------------------------------------
 # Functions for Video Feature Extraction
@@ -15,10 +16,11 @@ class CNNWrapper(nn.Module):
     pre-trained CNN.
     """
     def __init__(self,
-                 backbone):
+                 backbone,
+                 checkpoint_path):
         super(CNNWrapper, self).__init__()
         self.backbone = backbone
-        self.model = self.init_backbone()
+        self.model = self.init_backbone(checkpoint_path)
 
     def forward(self,
                 x):
@@ -27,11 +29,13 @@ class CNNWrapper(nn.Module):
         x = x.reshape(x.size(0), -1)
         return x
 
-    def init_backbone(self):
+    def init_backbone(self,
+                      checkpoint_path):
         """Helper to initialize a pretrained pytorch model.
         """
         if self.backbone == 'resnet50':
-            model = models.resnet50(pretrained=True)
+            model = resnet.resnet50(pretrained=False)
+            model.load_state_dict(torch.load(checkpoint_path))
         modules = list(model.children())[:-1]   # Remove the classifier layer
         model = nn.Sequential(*modules)
         
