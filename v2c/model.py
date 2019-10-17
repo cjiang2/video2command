@@ -231,7 +231,7 @@ class Video2Command():
         self.command_decoder.train()
         for epoch in range(self.config.NUM_EPOCHS):
             total_loss = 0.0
-            for i, (Xv, S) in enumerate(train_loader):
+            for i, (Xv, S, clip_names) in enumerate(train_loader):
                 # Mini-batch
                 Xv, S = Xv.to(self.device), S.to(self.device)
                 # Train step
@@ -256,7 +256,7 @@ class Video2Command():
         assert self.config.MODE == 'test'
         y_pred, y_true = [], []
         # Evaluation over the entire test dataset
-        for i, (Xv, S_true) in enumerate(test_loader):
+        for i, (Xv, S_true, clip_names) in enumerate(test_loader):
             # Mini-batch
             Xv, S_true = Xv.to(self.device), S_true.to(self.device)
             S_pred = self.predict(Xv, vocab)
