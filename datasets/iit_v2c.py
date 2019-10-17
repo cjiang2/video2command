@@ -254,16 +254,24 @@ class FeatureDataset(data.Dataset):
                    clip):
         """Helper function to parse images {clip_name: imgs_path} into a clip. 
         """
-        assert self.transform is not None   # Ensure to have at least ToTensor transform op.
         Xv = []
         clip_name = list(clip.keys())[0]
         imgs_path = clip[clip_name]
         for img_path in imgs_path:
-            image = Image.open(img_path).convert('RGB')
-            image = self.transform(image)
-            Xv.append(image)
+            img = self._imread(img_path)
+            Xv.append(img)
         Xv = torch.stack(Xv, dim=0)
         return Xv, clip_name
+
+    def _imread(self, path):
+        """Helper function to read image.
+        """
+        with open(path, 'rb') as f:
+            img = Image.open(f)
+            img = img.convert('RGB')
+        if self.transform is not None:
+            img = self.transform(img)
+        return img
 
     def __len__(self):
         return len(self.inputs)

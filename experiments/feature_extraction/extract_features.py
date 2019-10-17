@@ -28,8 +28,7 @@ class FEConfig(Config):
 
 def extract(dataset_path,
             dataset,
-            model_name, 
-            pooling):
+            model_name):
     # Create output directory
     output_path = os.path.join(dataset_path, model_name)
     if not os.path.exists(output_path):
@@ -38,7 +37,7 @@ def extract(dataset_path,
     # Prepare pre-trained model
     print('Loading pre-trained model...')
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    model = CNNWrapper(model_name, pooling)
+    model = CNNWrapper(model_name)
     model.eval()
     model.to(device)
     print('Done loading.')
@@ -66,9 +65,8 @@ def main_iit_v2c():
     # Parameters
     config = FEConfig()
     model_names = ['resnet50']
-    pooling = 'avg'
 
-    annotation_files = ['test.txt', 'train.txt']
+    annotation_files = ['train.txt', 'test.txt']
     for annotation_file in annotation_files:
         annotations = iit_v2c.load_annotations(config.DATASET_PATH, annotation_file)
 
@@ -87,7 +85,7 @@ def main_iit_v2c():
                                                transform=transform)
 
         for model_name in model_names:
-            extract(config.DATASET_PATH, image_dataset, model_name, pooling)
+            extract(config.DATASET_PATH, image_dataset, model_name)
 
 
 if __name__ == '__main__':

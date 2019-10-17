@@ -15,42 +15,27 @@ class CNNWrapper(nn.Module):
     pre-trained CNN.
     """
     def __init__(self,
-                 backbone_name,
-                 pooling):
+                 backbone):
         super(CNNWrapper, self).__init__()
-        self.backbone_name = backbone_name
-        self.backbone_model, self.input_size, self.num_features = self.init_backbone()
-        self.pool = self.init_pooling(pooling)
+        self.backbone = backbone
+        self.model = self.init_backbone()
 
     def forward(self,
                 x):
-        x = self.backbone_model(x)
-        if self.pool is not None:
-            x = self.pool(x)
+        with torch.no_grad():
+            x = self.model(x)
+        x = x.reshape(x.size(0), -1)
         return x
 
     def init_backbone(self):
         """Helper to initialize a pretrained pytorch model.
         """
-        if self.backbone_name == 'resnet50':
-            # Initialize ResNet50 model
+        if self.backbone == 'resnet50':
             model = models.resnet50(pretrained=True)
-            input_size = 224
-            num_features = 2048
-            # Remove the classifier layer and pooling layer
-            modules = list(model.children())[:-2]
-            model = nn.Sequential(*modules)
-
-        return model, input_size, num_features
-
-    def init_pooling(self, 
-                     pooling):
-        """Helper to initialize a pooling layer.
-        """
-        pool = None
-        if pooling == 'avg':
-            pool = nn.AdaptiveAvgPool2d((1, 1))
-        return pool
+        modules = list(model.children())[:-1]   # Remove the classifier layer
+        model = nn.Sequential(*modules)
+        
+        return model
 
 
 # ----------------------------------------
