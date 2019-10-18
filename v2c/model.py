@@ -34,13 +34,21 @@ class CNNWrapper(nn.Module):
         """Helper to initialize a pretrained pytorch model.
         """
         if self.backbone == 'resnet50':
-            model = resnet.resnet50(pretrained=False)
+            model = resnet.resnet50(pretrained=False)   # Use Caffe ResNet instead
             model.load_state_dict(torch.load(checkpoint_path))
+
+        elif self.backbone == 'resnet101':
+            model = resnet.resnet101(pretrained=False)
+            model.load_state_dict(torch.load(checkpoint_path))
+
+        elif self.backbone == 'resnet152':
+            model = resnet.resnet152(pretrained=False)
+            model.load_state_dict(torch.load(checkpoint_path))
+
         modules = list(model.children())[:-1]   # Remove the classifier layer
         model = nn.Sequential(*modules)
         
         return model
-
 
 # ----------------------------------------
 # Functions for V2CNet
@@ -183,6 +191,7 @@ class Video2Command():
     
         # Loss function
         self.loss_objective = CommandLoss()
+        self.loss_objective.to(self.device)
 
         # Setup parameters and optimizer
         self.params = list(self.video_encoder.parameters()) + \
