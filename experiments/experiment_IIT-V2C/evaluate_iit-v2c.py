@@ -59,9 +59,9 @@ for checkpoint_file in checkpoint_files:
     f = open(os.path.join(config.CHECKPOINT_PATH, 'prediction', 'prediction_{}.txt'.format(epoch)), 'w')
 
     for i in range(len(y_pred)):
-        print(y_pred[i])
+        #print(y_pred[i])
         pred_command = utils.sequence_to_text(y_pred[i], vocab)
-        print(y_true[i])
+        #print(y_true[i])
         true_command = utils.sequence_to_text(y_true[i], vocab)
         f.write('------------------------------------------\n')
         f.write(str(i) + '\n')

@@ -4,17 +4,19 @@ import sys
 import pickle
 
 import numpy as np
-from pycocoevalcap.bleu.bleu import Bleu
-from pycocoevalcap.rouge.rouge import Rouge
-from pycocoevalcap.cider.cider import Cider
-from pycocoevalcap.meteor.meteor import Meteor
-from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath("../../")
 
 # Import v2c utils
 sys.path.append(ROOT_DIR)  # To find local version of the library
+
+# Import python3 coco-caption
+from coco-caption.pycocoevalcap.bleu.bleu import Bleu
+from coco-caption.pycocoevalcap.rouge.rouge import Rouge
+from coco-caption.pycocoevalcap.cider.cider import Cider
+from coco-caption.pycocoevalcap.meteor.meteor import Meteor
+from coco-caption.pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 
 # All used metrics
 METRICS = ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4", "METEOR", "ROUGE_L", "CIDEr"]
@@ -30,18 +32,15 @@ class COCOScorer(object):
         gts = {}
         res = {}
         for ID in IDs:
-#            print ID
             gts[ID] = GT[ID]
             res[ID] = RES[ID]
-        print('tokenization...')
+        #print('Tokenization...')
         tokenizer = PTBTokenizer()
         gts = tokenizer.tokenize(gts)
         res = tokenizer.tokenize(res)
 
-        # =================================================
         # Set up scorers
-        # =================================================
-        print('setting up scorers...')
+        #print('Setting up scorers...')
         scorers = [
             (Bleu(4), ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4"]),
             (Meteor(),"METEOR"),
@@ -49,13 +48,11 @@ class COCOScorer(object):
             (Cider(), "CIDEr")
         ]
 
-        # =================================================
         # Compute scores
-        # =================================================
         eval = {}
         self.final_results = []
         for scorer, method in scorers:
-            print('computing %s score...'%(scorer.method()))
+            print('Computing %s score...'%(scorer.method()))
             score, scores = scorer.compute_score(gts, res)
             if type(method) == list:
                 for sc, scs, m in zip(score, scores, method):
@@ -66,9 +63,9 @@ class COCOScorer(object):
                 self.setEval(score, method)
                 self.setImgToEvalImgs(scores, IDs, method)
                 print("%s: %0.3f"%(method, score))
-                
-        #for metric, score in self.eval.items():
-        #    print '%s: %.3f'%(metric, score)
+        
+        print()
+        # Collect scores by metrics
         for metric in METRICS:
             self.final_results.append(self.eval[metric])
         self.final_results = np.array(self.final_results)
@@ -86,6 +83,8 @@ class COCOScorer(object):
             self.imgToEval[imgId][method] = score
 
 def read_prediction_file(prediction_file):
+    """Helper function to read generated prediction files.
+    """
     # Create dicts for ground truths and predictions
     gts_dict, pds_dict = {}, {}
     f = open(prediction_file, 'r')
@@ -113,6 +112,8 @@ def read_prediction_file(prediction_file):
     return gts_dict, pds_dict
 
 def test_iit_v2c():
+    """Helper function to test on IIT-V2C dataset.
+    """
     # Get all generated predicted files
     prediction_files = sorted(glob.glob(os.path.join(ROOT_DIR, 'checkpoints', 'prediction', '*.txt')))
     
@@ -127,7 +128,6 @@ def test_iit_v2c():
             max_scores = scorer.final_results
             max_file = prediction_file
 
-    print()
     print('Maximum Score with file', max_file)
     for i in range(len(max_scores)):
         print('%s: %0.3f' % (METRICS[i], max_scores[i]))

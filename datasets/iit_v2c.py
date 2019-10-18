@@ -99,7 +99,11 @@ def clipsname_captions(annotations,
 
     return clips_name, captions
 
-# For custom feature extraction
+
+# ----------------------------------------
+# For Custom Feature Extraction
+# ----------------------------------------
+
 def avi2frames(dataset_path, 
                in_folder='avi_video',
                out_folder='images'):
