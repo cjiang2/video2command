@@ -44,6 +44,10 @@ config.display()
 v2c_model = Video2Command(config)
 v2c_model.build()
 
+# Safely create prediction dir if non-exist
+if not os.path.exists(os.path.join(config.CHECKPOINT_PATH, 'prediction')):
+    os.makedirs(os.path.join(config.CHECKPOINT_PATH, 'prediction'))
+
 # Start evaluating
 checkpoint_files = sorted(glob.glob(os.path.join(config.CHECKPOINT_PATH, 'saved', '*.pth')))
 for checkpoint_file in checkpoint_files:
@@ -52,7 +56,7 @@ for checkpoint_file in checkpoint_files:
     y_pred, y_true = v2c_model.evaluate(test_loader, vocab)
 
     # Save to evaluation file
-    f = open(os.path.join(config.CHECKPOINT_PATH, 'prediction_{}.txt'.format(epoch)), 'w')
+    f = open(os.path.join(config.CHECKPOINT_PATH, 'prediction', 'prediction_{}.txt'.format(epoch)), 'w')
 
     for i in range(len(y_pred)):
         print(y_pred[i])
