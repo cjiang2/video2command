@@ -12,11 +12,11 @@ ROOT_DIR = os.path.abspath("../../")
 sys.path.append(ROOT_DIR)  # To find local version of the library
 
 # Import python3 coco-caption
-from coco-caption.pycocoevalcap.bleu.bleu import Bleu
-from coco-caption.pycocoevalcap.rouge.rouge import Rouge
-from coco-caption.pycocoevalcap.cider.cider import Cider
-from coco-caption.pycocoevalcap.meteor.meteor import Meteor
-from coco-caption.pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
+from pycocoevalcap.bleu.bleu import Bleu
+from pycocoevalcap.rouge.rouge import Rouge
+from pycocoevalcap.cider.cider import Cider
+from pycocoevalcap.meteor.meteor import Meteor
+from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 
 # All used metrics
 METRICS = ["Bleu_1", "Bleu_2", "Bleu_3", "Bleu_4", "METEOR", "ROUGE_L", "CIDEr"]
