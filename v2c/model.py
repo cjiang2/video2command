@@ -45,7 +45,14 @@ class CNNWrapper(nn.Module):
             model = resnet.resnet152(pretrained=False)
             model.load_state_dict(torch.load(checkpoint_path))
 
-        modules = list(model.children())[:-1]   # Remove the classifier layer
+        elif self.backbone == 'vgg16':
+            model = models.vgg16(pretrained=True)
+
+        elif self.backbone == 'vgg19':
+            model = models.vgg19(pretrained=True)
+
+        # Remove the last classifier layer
+        modules = list(model.children())[:-1]
         model = nn.Sequential(*modules)
         
         return model
