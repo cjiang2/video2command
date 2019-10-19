@@ -17,14 +17,25 @@ class Vocabulary(object):
     """Simple vocabulary wrapper.
     """
     def __init__(self, 
+                 start_word='<sos>',
+                 end_word='<eos>',
                  unk_word=None):
-        self.unk_word = unk_word
+        # Store word_index
         self.word2idx = {}
         self.idx2word = {}
         self.idx = 0
         self.word_counts = {}
 
-    def __call__(self, word):
+        # Add special tokens
+        self.start_word = start_word
+        self.end_word = end_word
+        self.unk_word = unk_word
+        for special_token in [start_word, end_word, unk_word]:
+            if special_token is not None:
+                self.add_word(special_token)
+
+    def __call__(self, 
+                 word):
         if not word in self.word2idx:
             if self.unk_word is None:
                 return None   # Return None if no unknown word's defined
@@ -35,26 +46,24 @@ class Vocabulary(object):
     def __len__(self):
         return len(self.word2idx)
 
-    def add_word(self, word, freq=None):
+    def add_word(self, 
+                 word, 
+                 freq=None):
         """Add individual word to vocabulary.
         """
-        if not word in self.word2idx:
+        if not word in self.word2idx and word is not None:
             self.word2idx[word] = self.idx
             self.idx2word[self.idx] = word
             self.idx += 1
         if freq is not None:
             self.word_counts[word] = freq
         else:
-            self.word_counts[word] = 1
-
-    def get_words(self):
-        """Return vocabulary.
-        """
-        return sorted(self.word2idx.keys())
+            self.word_counts[word] = 0
 
     def get_bias_vector(self):
         """Calculate bias vector from word frequency distribution.
-        NOTE: From NeuralTalk.
+        NOTE: Frequency need to be properly stored.
+        From NeuralTalk.
         """
         words = sorted(self.word2idx.keys())
         bias_vector = np.array([1.0*self.word_counts[word] for word in words])
@@ -68,8 +77,9 @@ def build_vocab(texts,
                 filters='!"#$%&()*+.,-/:;=?@[\]^_`{|}~ ',
                 lower=True,
                 split=" ", 
-                return_counter=False,
-                special_tokens=['<sos>', '<eos>', '<unk>']):
+                start_word='<sos>',
+                end_word='<eos>',
+                unk_word=None):
     """Build vocabulary over texts/captions from training set.
     """
     # Load annotations
@@ -88,16 +98,10 @@ def build_vocab(texts,
     else:
         counter = counter
 
-    # Only return counter if specified
-    if return_counter:
-        return counter
-
     # Create a vocabulary warpper
-    vocab = Vocabulary()
-    #vocab.add_word('<pad>')     # 0 is reserved for padding
-    if special_tokens:
-        for token in special_tokens:
-            vocab.add_word(token)
+    vocab = Vocabulary(start_word=start_word,
+                       end_word=end_word,
+                       unk_word=unk_word)
 
     words = sorted(counter.keys())
     for word in words:

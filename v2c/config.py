@@ -76,7 +76,9 @@ class Config(object):
     USE_BIAS_VECTOR = True
 
     # Special tokens to be added into vocabulary
-    SPECIAL_TOKENS = ['<sos>', '<eos>']
+    START_WORD = '<sos>'
+    END_WORD = '<eos>'
+    UNK_WORD = None
 
     def __init__(self):
         """Set values of computed attributes."""

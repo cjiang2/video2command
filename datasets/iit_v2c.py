@@ -227,7 +227,9 @@ def parse_dataset(config,
     if vocab is None:
         vocab = utils.build_vocab(captions, 
                                   frequency=config.FREQUENCY,
-                                  special_tokens=config.SPECIAL_TOKENS)
+                                  start_word=config.START_WORD,
+                                  end_word=config.END_WORD,
+                                  unk_word=config.UNK_WORD)
     # Reset vocab_size
     config.VOCAB_SIZE = len(vocab)
 

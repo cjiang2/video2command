@@ -48,7 +48,10 @@ print('maximum sequence length:', maxlen)
 
 # UnitTest on vocabulary
 print()
-vocab = utils.build_vocab(captions_train, special_tokens=['<sos>', '<eos>'])
+vocab = utils.build_vocab(captions_train, 
+                          start_word='<sos>',
+                          end_word='<eos>',
+                          unk_word=None)
 print()
 
 # Process text tokens
@@ -90,7 +93,7 @@ config.display()
 
 print('Vocabulary:')
 print(vocab.word2idx)
-print('length ("<pad>" included):', len(vocab))
+print('length ("<#SPECIAL>" included):', len(vocab))
 print('dataset:', len(clips), len(targets))
 print()
 
