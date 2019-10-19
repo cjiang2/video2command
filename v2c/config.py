@@ -14,8 +14,7 @@ class Config(object):
     # Name the configurations.
     NAME = None  # Override in sub-classes
     MODE = 'train'  # Mode (train/eval)
-    # Root project directory
-    ROOT_DIR = None
+    ROOT_DIR = None     # Root project directory
 
     # --------------------
     # Training Parameters
@@ -40,8 +39,7 @@ class Config(object):
     # --------------------
     # Model hyperparameters
     # Backbone & num_features used for feature extraction
-    BACKBONE = 'resnet50'
-    NUM_FEATURES = 2048
+    BACKBONE = {'resnet50': 2048}
 
     # Unit size for LSTM, Dense
     UNITS = 512
@@ -61,7 +59,7 @@ class Config(object):
     DATASET_PATH = os.path.join('datasets') # Override in sub-classes
 
     # Maximum command sentence length
-    MAXLEN = None
+    MAXLEN = 10
 
     # Buffer size for tf.dataset shuffling
     BUFFER_SIZE = 1000

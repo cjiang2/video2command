@@ -187,7 +187,7 @@ class Video2Command():
     def build(self,
               bias_vector=None):
         # Initialize Encode & Decode models here
-        self.video_encoder = VideoEncoder(in_size=self.config.NUM_FEATURES, 
+        self.video_encoder = VideoEncoder(in_size=list(self.config.BACKBONE.values())[0],
                                           units=self.config.UNITS)
         self.command_decoder = CommandDecoder(units=self.config.UNITS,
                                               vocab_size=self.config.VOCAB_SIZE,

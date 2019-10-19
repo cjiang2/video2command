@@ -22,6 +22,7 @@ class TrainConfig(Config):
     """
     NAME = 'v2c_IIT-V2C'
     MODE = 'train'
+    ROOT_DIR = ROOT_DIR
     CHECKPOINT_PATH = os.path.join(ROOT_DIR, 'checkpoints')
     DATASET_PATH = os.path.join(ROOT_DIR, 'datasets', 'IIT-V2C')
     MAXLEN = 10
