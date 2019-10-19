@@ -212,7 +212,7 @@ def parse_dataset(config,
     # Pre-extracted features saved as numpy
     if numpy_features:
         clips, captions = clipsname_captions(annotations)
-        clips = [os.path.join(config.DATASET_PATH, list(self.config.BACKBONE.keys())[0], x + '.npy') for x in clips]
+        clips = [os.path.join(config.DATASET_PATH, list(config.BACKBONE.keys())[0], x + '.npy') for x in clips]
 
     # Use images
     else:
