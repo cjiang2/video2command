@@ -34,6 +34,8 @@ To repeat the *video2command* experiment:
      - Use the [pre-extracted ResNet50 features](https://drive.google.com/file/d/1Y_YKHB4Bw6MPXj05S36d1G_3rMx73Uv5/view?usp=sharing) provided by the original author.
 
      - Perform feature extraction yourself. Firstly run `avi2frames.py` under folder `experiments/experiment_IIT-V2C` to convert all videos into images. Download the [*.pth weights for ResNet50](https://github.com/ruotianluo/pytorch-resnet) converted from Caffe. Run `extract_features.py` under folder `experiments/experiment_IIT-V2C` afterwards.
+     
+     - Note that the author's pre-extracted features seem to have a better quality and lead to a possible 1~2% higher metric scores.
 
 4. To begin training, run `train_iit-v2c.py`. 
 
