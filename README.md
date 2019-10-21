@@ -17,7 +17,7 @@ A PyTorch adapted implementation of the video-to-command model described in the 
 The *video2command* model is an Encoder-Decoder neural network that learn to generate a short sentence which can be used to command a robot to perform various manipulation tasks. The architecture of the network is listed below:
 <center>
     <figure> 
-        <img src="images/architecture.png" height="40%" width="40%"/>
+        <img src="images/architecture.jpg" height="40%" width="40%"/>
     </figure>        
 </center>
 
